@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Struktur Balok Beton Bertulang</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏗️ Kalkulator Balok Beton Bertulang</h1>
+            <p class="subtitle">Perhitungan struktur balok untuk rumah tinggal</p>
+        </header>
+
+        <div class="calculator-grid">
+            <!-- Input Section -->
+            <div class="card input-section">
+                <h2>📋 Data Input</h2>
+                
+                <div class="form-group">
+                    <label for="beamWidth">Lebar Balok (b) - mm</label>
+                    <input type="number" id="beamWidth" value="200" min="100" max="500">
+                </div>
+
+                <div class="form-group">
+                    <label for="beamHeight">Tinggi Balok (h) - mm</label>
+                    <input type="number" id="beamHeight" value="400" min="200" max="800">
+                </div>
+
+                <div class="form-group">
+                    <label for="beamLength">Panjang Bentang (L) - m</label>
+                    <input type="number" id="beamLength" value="4.0" min="1" max="10" step="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label for="concreteStrength">Kuat Tekan Beton (f'c) - MPa</label>
+                    <select id="concreteStrength">
+                        <option value="20">20 MPa (K-250)</option>
+                        <option value="25" selected>25 MPa (K-300)</option>
+                        <option value="30">30 MPa (K-350)</option>
+                        <option value="35">35 MPa (K-400)</option>
+                        <option value="40">40 MPa (K-450)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="steelStrength">Kuat Leleh Baja (fy) - MPa</label>
+                    <select id="steelStrength">
+                        <option value="240">240 MPa (Polos)</option>
+                        <option value="390" selected>390 MPa (Ulir)</option>
+                        <option value="420">420 MPa (Ulir)</option>
+                        <option value="520">520 MPa (High Strength)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="deadLoad">Beban Mati (DL) - kN/m</label>
+                    <input type="number" id="deadLoad" value="5.0" min="0" step="0.1">
+                    <small>Berat sendiri balok + dinding + lantai</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="liveLoad">Beban Hidup (LL) - kN/m</label>
+                    <input type="number" id="liveLoad" value="3.0" min="0" step="0.1">
+                    <small>Beban guna (orang, furniture, dll)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="supportType">Tipe Perletakan</label>
+                    <select id="supportType">
+                        <option value="simply">Sendi-Rol (Simply Supported)</option>
+                        <option value="fixed">Jepit-Jepit (Fixed)</option>
+                        <option value="propped">Sendi-Jepit (Propped Cantilever)</option>
+                    </select>
+                </div>
+
+                <button onclick="calculateBeam()" class="btn-calculate">Hitung Sekarang</button>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card results-section">
+                <h2>📊 Hasil Perhitungan</h2>
+                
+                <div id="resultsPlaceholder" class="placeholder">
+                    <p>💡 Klik tombol "Hitung Sekarang" untuk melihat hasil perhitungan</p>
+                </div>
+
+                <div id="resultsContent" style="display: none;">
+                    <div class="result-group">
+                        <h3>⚖️ Beban & Momen</h3>
+                        <div class="result-item">
+                            <span class="label">Beban Terfaktor (Qu):</span>
+                            <span class="value" id="factoredLoad">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">Momen Ultimit (Mu):</span>
+                            <span class="value" id="ultimateMoment">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">Gaya Geser Ultimit (Vu):</span>
+                            <span class="value" id="shearForce">-</span>
+                        </div>
+                    </div>
+
+                    <div class="result-group">
+                        <h3>🔩 Tulangan Lentur</h3>
+                        <div class="result-item">
+                            <span class="label">Tulangan Tarik (As):</span>
+                            <span class="value" id="tensionRebar">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">Tulangan Tekan (As'):</span>
+                            <span class="value" id="compressionRebar">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">Rasio Tulangan (ρ):</span>
+                            <span class="value" id="rebarRatio">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">Opsi Tulangan:</span>
+                            <span class="value rebar-options" id="rebarOptions">-</span>
+                        </div>
+                    </div>
+
+                    <div class="result-group">
+                        <h3>✂️ Tulangan Geser</h3>
+                        <div class="result-item">
+                            <span class="label">Kapasitas Geser Beton (φVc):</span>
+                            <span class="value" id="concreteShear">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">Tulangan Geser Diperlukan:</span>
+                            <span class="value" id="shearRebarNeeded">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">Opsi Sengkang:</span>
+                            <span class="value" id="stirrupOptions">-</span>
+                        </div>
+                    </div>
+
+                    <div class="result-group">
+                        <h3>✅ Kontrol</h3>
+                        <div class="result-item">
+                            <span class="label">Status Kekuatan:</span>
+                            <span class="value status" id="strengthStatus">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">Status Ductility:</span>
+                            <span class="value status" id="ductilityStatus">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="card notes-section">
+            <h2>📝 Catatan Penting</h2>
+            <ul>
+                <li>Perhitungan berdasarkan <strong>SNI 2847:2019</strong> (ACI 318-14)</li>
+                <li>Faktor beban: 1.2 DL + 1.6 LL</li>
+                <li>Faktor reduksi kekuatan (φ): 0.9 untuk lentur, 0.75 untuk geser</li>
+                <li>Selimut beton (clear cover): 40 mm untuk balok</li>
+                <li>Diameter sengkang minimum: Ø8 mm</li>
+                <li><strong>Disclaimer:</strong> Hasil perhitungan ini adalah estimasi awal. Konsultasikan dengan insinyur struktur untuk desain final.</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Kalkulator Struktur Balok | Dibuat untuk keperluan edukasi</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
